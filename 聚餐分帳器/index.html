@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聚餐分帳器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans CJK TC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .input-group button {
+            width: 50px;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #efefef;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #ee5a52;
+        }
+
+        .person-item {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .person-info {
+            flex: 1;
+        }
+
+        .person-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .person-count {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .person-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .result-section {
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .result-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item.payer {
+            border-left-color: #ff6b6b;
+            background: #fff5f5;
+        }
+
+        .result-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .result-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .result-tag {
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            background: #ff6b6b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        .summary {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .summary-total {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ 聚餐分帳器</h1>
+
+        <div class="info-box">
+            💡 輸入總金額和用餐人數，自動計算每人應付的金額。除不盡的零頭算在付錢人身上。
+        </div>
+
+        <!-- 基本資訊 -->
+        <div class="section">
+            <div class="section-title">基本資訊</div>
+            <input type="number" id="totalAmount" placeholder="總金額（元）" min="0" step="1" value="1000">
+            <input type="number" id="peopleCount" placeholder="用餐人數" min="1" step="1" value="3" style="margin-top: 10px;">
+        </div>
+
+        <!-- 人員名單 -->
+        <div class="section">
+            <div class="section-title">人員名單</div>
+            <div class="input-group">
+                <input type="text" id="personName" placeholder="輸入人名">
+                <button class="btn-secondary" onclick="addPerson()">加人</button>
+            </div>
+            <div id="personList">
+                <div class="empty-state">還沒有人員，請先加入</div>
+            </div>
+        </div>
+
+        <!-- 結果 -->
+        <div class="result-section">
+            <div class="result-title">分帳結果</div>
+            <div id="resultList">
+                <div class="empty-state">計算中...</div>
+            </div>
+            <div class="summary">
+                <div class="summary-label">總金額</div>
+                <div class="summary-total" id="resultTotal">￥0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let people = [];
+
+        // 初始化
+        function init() {
+            // 初始化3個人
+            people = [
+                { name: '付錢人', id: 1 },
+                { name: '人員2', id: 2 },
+                { name: '人員3', id: 3 }
+            ];
+            updateDisplay();
+        }
+
+        // 加入人員
+        function addPerson() {
+            const nameInput = document.getElementById('personName');
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                alert('請輸入人名');
+                return;
+            }
+
+            if (people.some(p => p.name === name)) {
+                alert('此人已在名單中');
+                return;
+            }
+
+            people.push({
+                name: name,
+                id: Math.max(...people.map(p => p.id), 0) + 1
+            });
+
+            nameInput.value = '';
+            updateDisplay();
+        }
+
+        // 移除人員
+        function removePerson(id) {
+            people = people.filter(p => p.id !== id);
+            updateDisplay();
+        }
+
+        // 更新顯示
+        function updateDisplay() {
+            updatePersonList();
+            calculateAndDisplay();
+        }
+
+        // 更新人員列表
+        function updatePersonList() {
+            const personList = document.getElementById('personList');
+
+            if (people.length === 0) {
+                personList.innerHTML = '<div class="empty-state">還沒有人員，請先加入</div>';
+                return;
+            }
+
+            personList.innerHTML = people.map(person => `
+                <div class="person-item">
+                    <div class="person-info">
+                        <div class="person-name">${person.name}</div>
+                    </div>
+                    <button class="btn-danger" onclick="removePerson(${person.id})">移除</button>
+                </div>
+            `).join('');
+        }
+
+        // 計算分帳
+        function calculateAndDisplay() {
+            const totalAmount = parseInt(document.getElementById('totalAmount').value) || 0;
+            const peopleCount = parseInt(document.getElementById('peopleCount').value) || 1;
+
+            if (people.length === 0) {
+                document.getElementById('resultList').innerHTML = '<div class="empty-state">還沒有人員</div>';
+                document.getElementById('resultTotal').textContent = '￥0';
+                return;
+            }
+
+            // 計算每人基本金額和餘數
+            const baseAmount = Math.floor(totalAmount / people.length);
+            const remainder = totalAmount % people.length;
+
+            // 建立結果陣列
+            const results = people.map((person, index) => {
+                const amount = index === 0 ? baseAmount + remainder : baseAmount;
+                return {
+                    name: person.name,
+                    amount: amount,
+                    isPayer: index === 0,
+                    hasRemainder: index === 0 && remainder > 0
+                };
+            });
+
+            // 顯示結果
+            const resultList = document.getElementById('resultList');
+            resultList.innerHTML = results.map(result => `
+                <div class="result-item ${result.isPayer ? 'payer' : ''}">
+                    <div>
+                        <span class="result-name">${result.name}</span>
+                        ${result.hasRemainder ? '<span class="result-tag">包含 ￥' + result.amount % people.length + ' 零頭</span>' : ''}
+                    </div>
+                    <span class="result-amount">￥${result.amount}</span>
+                </div>
+            `).join('');
+
+            // 驗證總和
+            const sum = results.reduce((acc, r) => acc + r.amount, 0);
+            document.getElementById('resultTotal').textContent = `￥${sum}`;
+        }
+
+        // 監聽輸入變化
+        document.getElementById('totalAmount').addEventListener('input', calculateAndDisplay);
+        document.getElementById('peopleCount').addEventListener('input', calculateAndDisplay);
+        document.getElementById('personName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addPerson();
+        });
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>
