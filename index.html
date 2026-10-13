@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>聚餐分帳器</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,-apple-system,"Microsoft JhengHei",sans-serif;color:#153c36;background:#f3f5ee}*{box-sizing:border-box}body{margin:0}main{max-width:960px;margin:0 auto;padding:54px 24px}header{margin-bottom:28px}.eyebrow{font-size:13px;letter-spacing:.14em;color:#56746a}h1{font-size:clamp(30px,5vw,42px);margin:10px 0}header p{color:#5c7068;line-height:1.7;margin:0}.layout{display:grid;grid-template-columns:1fr 1.12fr;gap:24px}.card{background:#fff;border:1px solid #dce4d8;border-radius:24px;padding:28px;box-shadow:0 8px 30px #183c3607}h2{font-size:19px;margin:0 0 24px}label.field{display:block;font-weight:650;margin-bottom:9px}.input-wrap{position:relative;margin-bottom:8px}input[type=text]{width:100%;border:1px solid #a9bdb1;border-radius:12px;padding:14px 48px 14px 14px;font:inherit;font-size:20px;background:#fcfdf9;color:#153c36}input:focus-visible,button:focus-visible{outline:3px solid #59b59c;outline-offset:3px}.unit{position:absolute;right:16px;top:17px;color:#5c7068}.help{font-size:13px;color:#62776c;line-height:1.6;margin:0 0 22px}.toggle{display:flex;align-items:center;gap:12px;padding:17px 0;cursor:pointer}.toggle input{width:23px;height:23px;accent-color:#16715a}.toggle span{font-weight:650}button{width:100%;background:#176b55;color:white;border:0;border-radius:12px;padding:15px;font:inherit;font-weight:700;cursor:pointer;margin-top:12px}button:hover{background:#105440}.result{background:#eaf3e9}.result h2{margin-bottom:18px}.row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:12px 0}.row span:last-child{font-weight:650;text-align:right;overflow-wrap:anywhere}.total{border-bottom:1px solid #cbdccb;padding-bottom:18px;margin-bottom:16px}.payment{background:#fff;border-radius:16px;padding:18px;margin:12px 0}.payment .amount{font-size:clamp(26px,4vw,34px);font-weight:750;margin-top:6px;overflow-wrap:anywhere}.badge{font-size:13px;color:#176b55;margin:8px 0 0;line-height:1.6}.check{font-size:14px;line-height:1.7;border-top:1px solid #cbdccb;padding-top:16px;margin:20px 0 0;overflow-wrap:anywhere}.rules{font-size:13px;color:#5d7167;line-height:1.8;margin-top:24px}.error{color:#a42929;background:#fff0ed;border-radius:10px;padding:12px;font-size:14px;line-height:1.6;margin:10px 0}.empty{color:#5d7167;line-height:1.8}footer{font-size:13px;color:#64786d;line-height:1.8;margin-top:26px;text-align:center}[hidden]{display:none!important}@media(max-width:680px){main{padding:28px 16px}.layout{grid-template-columns:1fr;gap:18px}.card{padding:22px;border-radius:20px}header{margin-bottom:22px}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="eyebrow">一起吃飯，輕鬆分帳</div><h1>聚餐分帳器</h1><p>零頭交給付錢的人，每一元都對得上。</p></header>
+<div class="layout">
+<section class="card"><h2>這次聚餐</h2>
+<form id="form" novalidate autocomplete="off">
+<label class="field" for="amount">總金額（未含服務費）</label><div class="input-wrap"><input id="amount" type="text" inputmode="numeric" value="1000" maxlength="16" aria-describedby="amount-help error"><span class="unit">元</span></div><p class="help" id="amount-help">輸入 0～999,999,999,999 的整數元，可使用千分位逗號。</p>
+<label class="field" for="people">聚餐人數</label><div class="input-wrap"><input id="people" type="text" inputmode="numeric" value="3" maxlength="7" aria-describedby="people-help error"><span class="unit">人</span></div><p class="help" id="people-help">包含付錢的人，共 1～1,000,000 人。</p>
+<label class="toggle"><input id="service" type="checkbox"><span>加收 10% 服務費</span></label>
+<p class="help">服務費＝總金額 × 10%，四捨五入至整數元；例如 105 元的服務費為 11 元。</p>
+<div id="error" class="error" role="alert" hidden></div><button type="submit">計算分帳</button>
+</form></section>
+<section class="card result" aria-labelledby="result-title"><h2 id="result-title">分帳結果</h2><div id="output" aria-live="polite" aria-atomic="true"></div></section>
+</div>
+<div class="rules">分帳規則：應付總額＝總金額＋四捨五入後的服務費。每人基本金額取整數部分，除不盡的餘數全部由付錢的人承擔。只有 1 人時，由該人支付全額。</div>
+<footer>完全離線 · 不需登入 · 不傳送或儲存輸入資料<br>重新開啟網頁即回到預設範例。</footer>
+</main>
+<script>
+'use strict';
+const form=document.getElementById('form'), amountInput=document.getElementById('amount'), peopleInput=document.getElementById('people'), serviceInput=document.getElementById('service'), output=document.getElementById('output'), error=document.getElementById('error');
+function splitBill(amount,people,service){const fee=service?(amount+5n)/10n:0n;const total=amount+fee;const base=total/people;const remainder=total%people;return{fee,total,base,remainder,payer:base+remainder,others:people-1n};}
+function money(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function calculate(){
+ error.hidden=true;amountInput.removeAttribute('aria-invalid');peopleInput.removeAttribute('aria-invalid');
+ const a=amountInput.value.trim(),p=peopleInput.value.trim();let messages=[];
+ const amountValid=/^(?:\d+|\d{1,3}(?:,\d{3})+)$/.test(a);
+ let amount=amountValid?BigInt(a.replace(/,/g,'')):null;
+ if(amount===null||amount>999999999999n){messages.push('總金額請輸入 0～999,999,999,999 的整數元，逗號須使用正確千分位格式。');amountInput.setAttribute('aria-invalid','true');}
+ let people=/^\d+$/.test(p)?BigInt(p):null;
+ if(people===null||people<1n||people>1000000n){messages.push('人數請輸入 1～1,000,000 的整數，並包含付錢的人。');peopleInput.setAttribute('aria-invalid','true');}
+ if(messages.length){error.textContent=messages.join(' ');error.hidden=false;output.innerHTML='<p class="empty">請修正輸入後再計算，避免使用過期的分帳結果。</p>';return;}
+ const r=splitBill(amount,people,serviceInput.checked);
+ output.innerHTML=`<div class="row"><span>原始總金額</span><span>${money(amount)} 元</span></div><div class="row"><span>服務費${serviceInput.checked?'（10%）':'（未加收）'}</span><span>${money(r.fee)} 元</span></div><div class="row total"><span>應付總額</span><span>${money(r.total)} 元</span></div><div class="payment"><div>付錢的人 · 1 人</div><div class="amount">${money(r.payer)} 元</div><p class="badge">${r.remainder>0n?`含全部零頭 ${money(r.remainder)} 元（基本金額 ${money(r.base)} 元＋零頭）`:'零頭 0 元，無需額外承擔'}</p></div><div class="payment"><div>其他人 · ${money(r.others)} 人</div><div class="amount">${r.others>0n?`各 ${money(r.base)} 元`:'無其他人'}</div></div><p class="check">✓ 合計核對：${money(r.payer)} ＋ ${money(r.base)} × ${money(r.others)} ＝ ${money(r.total)} 元<br>所有人合計精確等於應付總額。</p>`;
+}
+form.addEventListener('submit',e=>{e.preventDefault();calculate();});
+[amountInput,peopleInput].forEach(input=>input.addEventListener('input',calculate));serviceInput.addEventListener('change',calculate);calculate();
+</script>
+</body>
+</html>
